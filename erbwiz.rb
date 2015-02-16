@@ -183,8 +183,8 @@ def parse_dict(dict)
   dict ? eval(dict) : {}
 end
 
-def create_table(_label, dict)
-  @groups[:tables][@last_label] ||= {
+def create_table(label, dict)
+  @groups[:tables][label] ||= {
     index: next_index,
     options: dict,
     fields: {}
