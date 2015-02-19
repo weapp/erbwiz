@@ -71,17 +71,29 @@ module Erbwiz
   }
 
   @colors = {
-    orange: {
-      color: '#804000',
-      fillcolor: '#eee0a0'
-    },
     blue: {
       color: '#000040',
       fillcolor: '#ececfc'
     },
+    green: {
+      color: '#002000',
+      fillcolor: '#d0e0d0'
+    },
+    orange: {
+      color: '#804000',
+      fillcolor: '#eee0a0'
+    },
     red: {
       color: '#c00000',
       fillcolor: '#fcecec'
+    },
+    white: {
+      color: '#000000',
+      fillcolor: '#ffffff'
+    },
+    yellow: {
+      color: '#606000',
+      fillcolor: '#fbfbdb'
     }
   }
 
@@ -260,7 +272,7 @@ module Erbwiz
   def table_attrs_hash(label)
     table = @groups[:tables][label]
     options = table[:options]
-    color = @colors[options[:color]] || @colors[:orange]
+    color = @colors[options[:color]] || @colors[:yellow]
     base = {
       shape: :record,
       label: safe(format_table(label)),
