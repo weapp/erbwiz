@@ -419,7 +419,7 @@ def main(args)
   Erbwiz.export(fileout, options)
 end
 
-main(ARGV)
+main(ARGV) if __FILE__ == $0
 
 __END__
 /*
