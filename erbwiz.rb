@@ -227,7 +227,7 @@ module Erbwiz
   def row_marks(v)
     [
       v[:fk] && ' (FK)',
-      v[:mark] && " #{v[:mark]}"
+      v[:mark] && " #{escape_value(v[:mark])}"
     ].join
   end
 
@@ -258,7 +258,7 @@ module Erbwiz
   end
 
   def escape_value(value)
-    safe(value.to_s.gsub(/[ <>]/) { |m| "\\#{m}" }.gsub("\n", '\n'))
+    safe(value.to_s.gsub(/[ <>]/) { |m| "\\#{m}" }.gsub("\n", '\n').gsub('"', '\\"'))
   end
 
   def escape_attr(attribute)
@@ -373,9 +373,9 @@ module Erbwiz
     if fileout
       ext = fileout.split('.').last
       if ext == 'dot'
-        File.open(file_out, 'w').puts(dot)
+        File.open(fileout, 'w').puts(dot)
       else
-        Open3.capture3("dot -T#{ext} -o #{fileout}", stdin_data: dot)
+        Open3.capture2("dot -T#{ext} -o #{fileout}", stdin_data: dot)
       end
     else
       puts dot
