@@ -44,8 +44,6 @@ module Erbwiz
       fontcolor: :black,
       labelloc: :t,
       labeljust: :l,
-      ranksep: 1.0,
-      nodesep: 1.0,
       rankdir: :LR,
       fontsize: 14,
       # ordering: :out
@@ -110,7 +108,9 @@ module Erbwiz
       '1' => { arrowtail: :teetee },
       '*' => { arrowtail: :crowodot },
       '+' => { arrowtail: :crowdot },
-      '?' => { arrowtail: :teeodot }
+      '?' => { arrowtail: :teeodot },
+      '>' => { arrowtail: :inv },
+      '<' => { arrowtail: :normal }
     }
   }
 
@@ -127,7 +127,9 @@ module Erbwiz
       '1' => { arrowhead: :teetee },
       '*' => { arrowhead: :crowodot },
       '+' => { arrowhead: :crowdot },
-      '?' => { arrowhead: :teeodot }
+      '?' => { arrowhead: :teeodot },
+      '>' => { arrowhead: :normal },
+      '<' => { arrowhead: :inv }
     }
   }
 
@@ -217,7 +219,9 @@ module Erbwiz
   end
 
   def tableid(label)
+    l = label.to_s.gsub(/[^a-zA-Z]/, '').ljust(6, '_')[0...6]
     "entity_#{@groups[:tables][label][:index]}"
+    "#{l}_#{@groups[:tables][label][:index].to_s.rjust(3, '0')}"
   end
 
   def format_keys(fields)
@@ -443,7 +447,7 @@ digraph ERD {
 <%- end -%>
 
 <% relations.each do |t1, n1, n2, t2, dict| %>
-  //R [<%= t1 %>]--[<%= t2 %>]
+  //R [<%= t1 %>] <%= n1 %>--<%= n2 %> [<%= t2 %>]
   <%= "#{tableid(t1)} -> #{tableid(t2)} [#{rel_attrs(t1, n1, n2, t2, dict)}]" %>
 <% end %>
 
