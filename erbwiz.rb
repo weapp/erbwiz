@@ -4,15 +4,11 @@ require 'open3'
 require 'erb'
 require 'optparse'
 
-
-
 String.class_eval do
   attr_accessor :loc, :is_safe
 end
 
-module Erbwiz
-  extend self
-
+class Erbwiz
   Options = Struct.new(:notation)
 
   IDENTIFIER = '([\w\d]+(?:\s*[\w\d]+)*)'
@@ -28,119 +24,121 @@ module Erbwiz
     same: /\A#{LABEL}((?:\s*==\s*#{LABEL})+)#{MARK}#{DICT}\Z/
   }
 
-  @_index_ = 0
+  def initlaize
+    @_index_ = 0
 
-  @last_label = nil
+    @last_label = nil
 
-  @groups = {
-    globals: {},
-    tables: {},
-    relations: [],
-    sames: []
-  }
-  @groups[:globals] = {
-    graph: {
-      bgcolor: :white,
-      fontcolor: :black,
-      labelloc: :t,
-      labeljust: :l,
-      rankdir: :LR,
-      fontsize: 14,
-      # ordering: :out
-    },
-
-    node: {
-      fontsize: 12,
-      fontcolor: :black,
-      style: :filled,
-      color: '#000000',
-      fillcolor: '#ffffff'
-    },
-
-    edge: {
-      fontsize: 12,
-      fontcolor: :black,
-      labeldistance: 2.0,
-      dir: :both,
-      style: :solid,
-      arrowtail: :none,
-      arrowhead: :none
+    @groups = {
+      globals: {},
+      tables: {},
+      relations: [],
+      sames: []
     }
-  }
+    @groups[:globals] = {
+      graph: {
+        bgcolor: :white,
+        fontcolor: :black,
+        labelloc: :t,
+        labeljust: :l,
+        rankdir: :LR,
+        fontsize: 14,
+        # ordering: :out
+      },
 
-  @colors = {
-    blue: {
-      color: '#000040',
-      fillcolor: '#ececfc'
-    },
-    green: {
-      color: '#002000',
-      fillcolor: '#d0e0d0'
-    },
-    orange: {
-      color: '#804000',
-      fillcolor: '#eee0a0'
-    },
-    red: {
-      color: '#c00000',
-      fillcolor: '#fcecec'
-    },
-    white: {
-      color: '#000000',
-      fillcolor: '#ffffff'
-    },
-    yellow: {
-      color: '#606000',
-      fillcolor: '#fbfbdb'
+      node: {
+        fontsize: 12,
+        fontcolor: :black,
+        style: :filled,
+        color: '#000000',
+        fillcolor: '#ffffff'
+      },
+
+      edge: {
+        fontsize: 12,
+        fontcolor: :black,
+        labeldistance: 2.0,
+        dir: :both,
+        style: :solid,
+        arrowtail: :none,
+        arrowhead: :none
+      }
     }
-  }
 
-  @tails = {
-    uml: {
-      '-' => { taillabel: '' },
-      '1' => { taillabel: '1' },
-      '*' => { taillabel: '0..N' },
-      '+' => { taillabel: '1..N' },
-      '?' => { taillabel: '0..1' }
-    },
-    ie: {
-      '-' => {},
-      '1' => { arrowtail: :teetee },
-      '*' => { arrowtail: :crowodot },
-      '+' => { arrowtail: :crowdot },
-      '?' => { arrowtail: :teeodot },
-      '>' => { arrowtail: :inv },
-      '<' => { arrowtail: :normal }
+    @colors = {
+      blue: {
+        color: '#000040',
+        fillcolor: '#ececfc'
+      },
+      green: {
+        color: '#002000',
+        fillcolor: '#d0e0d0'
+      },
+      orange: {
+        color: '#804000',
+        fillcolor: '#eee0a0'
+      },
+      red: {
+        color: '#c00000',
+        fillcolor: '#fcecec'
+      },
+      white: {
+        color: '#000000',
+        fillcolor: '#ffffff'
+      },
+      yellow: {
+        color: '#606000',
+        fillcolor: '#fbfbdb'
+      }
     }
-  }
 
-  @heads = {
-    uml: {
-      '-' => { headlabel: '' },
-      '1' => { headlabel: '1' },
-      '*' => { headlabel: '0..M' },
-      '?' => { headlabel: '0..1' },
-      '+' => { headlabel: '1..M' }
-    },
-    ie: {
-      '-' => {},
-      '1' => { arrowhead: :teetee },
-      '*' => { arrowhead: :crowodot },
-      '+' => { arrowhead: :crowdot },
-      '?' => { arrowhead: :teeodot },
-      '>' => { arrowhead: :normal },
-      '<' => { arrowhead: :inv }
+    @tails = {
+      uml: {
+        '-' => { taillabel: '' },
+        '1' => { taillabel: '1' },
+        '*' => { taillabel: '0..N' },
+        '+' => { taillabel: '1..N' },
+        '?' => { taillabel: '0..1' }
+      },
+      ie: {
+        '-' => {},
+        '1' => { arrowtail: :teetee },
+        '*' => { arrowtail: :crowodot },
+        '+' => { arrowtail: :crowdot },
+        '?' => { arrowtail: :teeodot },
+        '>' => { arrowtail: :inv },
+        '<' => { arrowtail: :normal }
+      }
     }
-  }
 
-  @combineds = {
-    '----' => {},
-    '*--1' => {},
-    '1--*' => {},
-    '*--*' => {},
-    '1--?' => {},
-    '?--1' => {}
-  }
+    @heads = {
+      uml: {
+        '-' => { headlabel: '' },
+        '1' => { headlabel: '1' },
+        '*' => { headlabel: '0..M' },
+        '?' => { headlabel: '0..1' },
+        '+' => { headlabel: '1..M' }
+      },
+      ie: {
+        '-' => {},
+        '1' => { arrowhead: :teetee },
+        '*' => { arrowhead: :crowodot },
+        '+' => { arrowhead: :crowdot },
+        '?' => { arrowhead: :teeodot },
+        '>' => { arrowhead: :normal },
+        '<' => { arrowhead: :inv }
+      }
+    }
+
+    @combineds = {
+      '----' => {},
+      '*--1' => {},
+      '1--*' => {},
+      '*--*' => {},
+      '1--?' => {},
+      '?--1' => {}
+    }
+  end
 
   def safe(string)
     string.is_safe = true
@@ -385,6 +383,10 @@ module Erbwiz
       puts dot
     end
   end
+
+  def export_to(format)
+    Open3.capture3("dot -T#{format}", stdin_data: dot)
+  end
 end
 
 
@@ -419,8 +421,9 @@ def main(args)
 
   opt_parser.parse!(%w(--help)) unless filein
 
-  Erbwiz.import(File.readlines(filein))
-  Erbwiz.export(fileout, options)
+  er = Erbwiz.new
+  er.import(File.readlines(filein))
+  er.export(fileout, options)
 end
 
 main(ARGV) if __FILE__ == $0
