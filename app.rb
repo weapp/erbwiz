@@ -58,6 +58,9 @@ INDEX = %(
 <html>
   <head>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      .mono{font-family:Menlo,Monaco,Consolas,"Courier New",monospace}
+    </style>
   </head>
   <body>
     <div class="container">
@@ -98,7 +101,7 @@ INDEX = %(
         <div class="form-group">
           <label for="content" class="col-sm-2 control-label">Content</label>
           <div class="col-sm-10">
-          <textarea name="content" rows="20" class="form-control"><%= params[:content] %></textarea>
+          <textarea name="content" rows="20" class="form-control mono"><%= params[:content] %></textarea>
           </div>
         </div>
 
