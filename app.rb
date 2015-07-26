@@ -15,17 +15,22 @@ helpers do
   end
 
   def export(content)
-    format = params[:format] || :svg
-    content_type({'dot' => :text, 'plain' => :tex}.fetch(format, format))
-    Erbwiz.new.import(content.split("\n")).export_to(format)
+    if ENV['DOT']
+      format = params[:format] || :svg
+      content_type({'dot' => :text, 'plain' => :tex}.fetch(format, format))
+      Erbwiz.new.import(content.split("\n")).export_to(format)
+    else
+      graph = Erbwiz.new.import(content.split("\n")).export_to('dot')
+      ERB.new(GRAPH, nil, '-').result(binding)
+    end
   end
 end
 
 get '/' do
-  if request.params['content']
-    %( #{request} )
-  elsif request.params['url'] && request.params['url'] =~ %r{^http://}
-    export(open(request.params['url']))
+  if params['url'] && params['url'] =~ %r{^https?://}
+    export(open(params['url']).read)
+  elsif params['content'] && params['content'] != ""
+    export(params['content'])
   else
     ERB.new(INDEX, nil, '-').result(binding)
   end
@@ -33,8 +38,8 @@ end
 
 post '/' do
   begin
-    if params['url'] && params['url'] =~ %r{^http://}
-      export(open(request.params['url']))
+    if params['url'] && params['url'] =~ %r{^https?://}
+      export(open(params['url']).read)
     elsif params[:file]
       export(params[:file][:tempfile].read)
     elsif params['content'] && params['content'] != ""
@@ -68,21 +73,23 @@ INDEX = %(
       <h1>E<span style="color:#DC143C">rb</span><span style="color:#483D8B">wiz</span></h1>
 
       <form method="post" enctype="multipart/form-data" class="form-horizontal">
-        <div class="form-group">
-          <label for="url" class="col-sm-2 control-label">Format</label>
-          <div class="col-sm-10">
-            <select class="form-control" name="format">
-              <option>svg</option>
-              <option>pdf</option>
-              <option>png</option>
-              <option>jpeg</option>
-              <option>eps</option>
-              <option>gif</option>
-              <option>dot</option>
-              <option>plain</option>
-            </select>
+        <% if ENV['DOT'] %>
+          <div class="form-group">
+            <label for="url" class="col-sm-2 control-label">Format</label>
+            <div class="col-sm-10">
+              <select class="form-control" name="format">
+                <option>svg</option>
+                <option>pdf</option>
+                <option>png</option>
+                <option>jpeg</option>
+                <option>eps</option>
+                <option>gif</option>
+                <option>dot</option>
+                <option>plain</option>
+              </select>
+            </div>
           </div>
-        </div>
+        <% end %>
 
         <div class="form-group">
           <label for="url" class="col-sm-2 control-label">Url</label>
@@ -117,3 +124,53 @@ INDEX = %(
 </html>
 )
 
+GRAPH = %(
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Graph</title>
+  </head>
+  <body>
+    <script type="text/vnd.graphviz" id="graph">
+      <%= graph %>
+    </script>
+
+    <input type="button" onclick="download();" value="download"><br>
+
+    <div id="output" style="display:inline-block"></div>
+
+    <div style="display:none">
+      <canvas id="canvas">
+    </div>
+
+    <script src="//mdaines.github.io/viz.js/viz.js"></script>
+
+    <script>
+      var byId = document.getElementById.bind(document);
+      var svg_data = Viz(byId("graph").innerHTML, "svg");
+
+      byId("output").innerHTML = svg_data;
+
+      byId("canvas").setAttribute("width", byId("output").offsetWidth);
+      byId("canvas").setAttribute("height", byId("output").clientHeight);
+
+      function download(){
+        var canvas = document.querySelector("canvas"),
+            context = canvas.getContext("2d");
+
+        var img = new Image();
+        img.src = "data:image/svg+xml," + svg_data;
+        img.onload = function() {
+          context.drawImage(img, 0, 0);
+          var a = document.createElement("a");
+          a.download = "fallback.png";
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+        }
+      };
+
+    </script>
+  </body>
+</html>
+)

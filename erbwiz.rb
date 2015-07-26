@@ -366,7 +366,7 @@ class Erbwiz
   end
 
   def dot
-    dot = ERB.new(TEMPLATE, nil, '-').result(binding)
+    ERB.new(TEMPLATE, nil, '-').result(binding)
   end
 
   def export(fileout, options)
@@ -388,7 +388,10 @@ class Erbwiz
   def export_to(format, options=nil)
     default_notation = ENV['ERBWIZ_NOTATION'] || 'ie'
     @options ||= Erbwiz::Options.new(default_notation.to_sym)
-    stdout, stderr, status = Open3.capture3("dot -T#{format}", stdin_data: dot)
+
+    return dot if format == 'dot' || format == :dot
+
+    stdout, _, _ = Open3.capture3("dot -T#{format}", stdin_data: dot)
     stdout
   end
 end
