@@ -10,7 +10,7 @@ gem 'tilt', '~>1.4.0'
 gem 'sinatra', require: 'sinatra/base'
 
 # gem 'sinatra-contrib', require: 'sinatra/contrib/all'
-gem 'sinatra-assetpack'
+gem 'sinatra-assetpack', require: 'sinatra/assetpack'
 
 gem 'coffee-script'
 

@@ -27,10 +27,6 @@ Bundler.require(:default, APP_ENV)
 require './erbwiz'
 require 'yaml/store'
 
-
-require 'sinatra/base'
-require 'sinatra/assetpack'
-
 class App < Sinatra::Base
   register Sinatra::AssetPack
   assets do
