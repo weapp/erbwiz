@@ -461,8 +461,8 @@ digraph ERD {
 <% sames.each do |tables| %>
   {rank=same; <% tables.each do |table| %><%= tableid(table) %> <% end %>}
 <% end %>
-
 }
+
 )
 
 main(ARGV) if __FILE__ == $0

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Graph</title>
+  </head>
+  <body>
+    <script type="text/vnd.graphviz" id="graph">
+      <%= @graph %>
+    </script>
+
+    <input type="button" onclick="download();" value="download"><br>
+
+    <div id="output" style="display:inline-block"></div>
+
+    <div style="display:none">
+      <canvas id="canvas">
+    </div>
+
+    <script src="//mdaines.github.io/viz.js/viz.js"></script>
+
+    <script>
+      var byId = document.getElementById.bind(document);
+      var svg_data = Viz(byId("graph").innerHTML, "svg");
+
+      byId("output").innerHTML = svg_data;
+
+      byId("canvas").setAttribute("width", byId("output").offsetWidth);
+      byId("canvas").setAttribute("height", byId("output").clientHeight);
+
+      function download(){
+        var canvas = document.querySelector("canvas"),
+            context = canvas.getContext("2d");
+
+        var img = new Image();
+        img.src = "data:image/svg+xml," + svg_data;
+        img.onload = function() {
+          context.drawImage(img, 0, 0);
+          var a = document.createElement("a");
+          a.download = "fallback.png";
+          a.href = canvas.toDataURL("image/png");
+          a.click();
+        }
+      };
+
+    </script>
+  </body>
+</html>
