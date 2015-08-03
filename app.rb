@@ -46,7 +46,7 @@ class App < Sinatra::Base
     ]
 
 
-    js_compression :jsmin
+    js_compression :yui
   end
 
   helpers do
