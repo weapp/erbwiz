@@ -45,8 +45,6 @@ class App < Sinatra::Base
       '/js/app.js'
     ]
 
-
-    js_compression :yui
   end
 
   helpers do
@@ -81,7 +79,7 @@ class App < Sinatra::Base
   end
 
   get '/:key' do
-    `pegjs -e erjs app/js/erjs.pegjs` if APP_ENV.development?
+    # `pegjs -e erjs ./erjs.pegjs ./app/js/erjs.js` if APP_ENV.development?
     store.transaction do
       @content = store[params['key']]
     end

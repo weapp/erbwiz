@@ -94,7 +94,21 @@
         <div id="grammar"></div>
       </div>
 
-      <%= js :application %>
+      <%# js :application %>
+
+      <script type="text/javascript" src="/js/ejs.js" ></script>
+      <script type="text/javascript" src="/js/erjs.js" ></script>
+      <script type="text/javascript" src="/js/er2dot.js" ></script>
+      <script type="text/javascript" src="/js/viz.js" ></script>
+
+      <script type="text/javascript" src="/js/fetchival.js" ></script>
+      <script type="text/javascript" src="/js/store.min.js" ></script>
+
+      <script type="text/javascript" src="/js/dnd_textarea.js" ></script>
+      <script type="text/javascript" src="/js/autosize.js" ></script>
+
+      <script type="text/javascript" src="/js/app.js" ></script>
+
 
       <script id="graph-template" type="x-tmpl-ejs"><%= open('./views/graph.ejs'){ |f| f.read } %></script>
     </div>
