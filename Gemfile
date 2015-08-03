@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 source 'https://rubygems.org'
 
+ruby '2.1.2'
+
 #gem 'lotusrb', github: 'lotus/lotus'
 gem 'rspec', group: 'test'
 gem 'pry', group: 'development'
