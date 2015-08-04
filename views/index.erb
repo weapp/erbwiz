@@ -27,10 +27,10 @@
           border-right:2px solid rgba(200,200,200,0.2);
         }
       }
-      #saved {float:right;}
-      #saved {opacity: 0.2}
-      #saved .green{color: #070}
-      #saved .red{color: #700}
+      #saved {float:right; opacity: 0.2}
+      #saved .green {color: #070}
+      #saved .red {color: #700}
+      .graph-table {height:100%;width:100%;text-align:center}
     </style>
   </head>
   <body>
@@ -41,57 +41,21 @@
           <span>E<span style="color:#DC143C">rb</span><span style="color:#483D8B">wiz</span></span>&nbsp;
           <span id="saved"></span>
         </h1>
-
-        <form method="post" action=/ class="form-stack">
           <input type=hidden id=key name=key value="<%= params[:key] %>">
-
-          <% if ENV['DOT'] %>
-            <div class="form-group">
-              <label for="url" class="control-label">Format</label>
-              <div class="">
-                <select class="form-control" name="format">
-                  <option>svg</option>
-                  <option>pdf</option>
-                  <option>png</option>
-                  <option>jpeg</option>
-                  <option>eps</option>
-                  <option>gif</option>
-                  <option>dot</option>
-                  <option>plain</option>
-                </select>
-              </div>
-            </div>
-          <% end %>
-
           <div class="form-group">
-            <label for="url" class=" control-label">Url</label>
-            <div class="">
-              <input name="url" value="<%= params[:url] %>" class="form-control" id="url" placeholder="http://">
-            </div>
+            <textarea id="content" name="content" rows="1" class="form-control mono"><%= @content || params[:content] || default_content %></textarea>
           </div>
-
-          <div class="form-group">
-            <label for="content" class=" control-label">Content</label>
-            <div class="">
-            <input type=hidden id=content_saved value="true">
-            <textarea id="content" name="content" rows="1" class="form-control mono"><%= @content || params[:content] %></textarea>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <div class=" ">
-              <input type="submit" class="btn btn-default" />
-            </div>
-          </div>
-        </form>
       </div>
       <div class="col-md-4">
       </div>
-      <div class="col-md-7">
-        <div id="graph"></div>
-        <div id="result"></div>
-        <div id="code"></div>
-        <div id="grammar"></div>
+      <div class="col-md-8">
+        <table class="graph-table">
+          <tr>
+            <td>
+              <div id="graph"></div>
+            </td>
+          </tr>
+        </table>
       </div>
 
       <%# js :application %>

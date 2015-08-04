@@ -24,7 +24,6 @@ APP_ENV = StringInquirer.new(ENV['RACK_ENV'] || 'development')
 
 Bundler.require(:default, APP_ENV)
 
-require './erbwiz'
 require 'yaml/store'
 
 class App < Sinatra::Base
@@ -56,34 +55,54 @@ class App < Sinatra::Base
       Rack::Utils.escape_html(text)
     end
 
-    def export(content)
-      if ENV['DOT']
-        format = params[:format] || :svg
-        content_type({'dot' => :text, 'plain' => :tex}.fetch(format, format))
-        Erbwiz.new.import(content.split("\n")).export_to(format)
-      else
-        @graph = Erbwiz.new.import(content.split("\n")).export_to('dot')
-        erb :graph
-      end
+    def default_content
+      @default_content = <<EOF
+# Tables
+[User] { color: :blue }
+*id
+blog_id* <nullable>
+name
+
+[Blog] { color: :orange }
+*id
+user_id*
+title
+logo <url>
+
+[Post]
+*id
+blog_id*
+title
+body
+
+# Relations
+[User] 1--? [Blog]
+[Blog] 1--* [Post]
+[Post] +--* [Tag]
+[Post] 1--* [Comment]
+[User] 1--* [Comment]
+[User] *--* [User] <friendship>
+
+# Extras
+[Post] == [Comment]
+EOF
     end
   end
 
-  get '/' do
+
+
+  get '/:key?' do
+    # `pegjs -e erjs ./erjs.pegjs ./app/js/erjs.js` if APP_ENV.development?
     if params['url'] && params['url'] =~ %r{^https?://}
-      export(open(params['url']).read)
+      @content = open(params['url']).read
     elsif params['content'] && params['content'] != ""
-      export(params['content'])
+      @content = params['content']
+    elsif params['key']
+      store.transaction { @content = store[params['key']] }
+      @content = @content && JSON[@content]['content']
     else
       redirect to("/#{SecureRandom.urlsafe_base64(6)}")
     end
-  end
-
-  get '/:key' do
-    # `pegjs -e erjs ./erjs.pegjs ./app/js/erjs.js` if APP_ENV.development?
-    store.transaction do
-      @content = store[params['key']]
-    end
-    @content = @content && JSON[@content]['content']
     erb :index
   end
 
@@ -98,16 +117,17 @@ class App < Sinatra::Base
   post '/' do
     begin
       if params['url'] && params['url'] =~ %r{^https?://}
-        export(open(params['url']).read)
+        @content = open(params['url']).read
       elsif params[:file]
-        export(params[:file][:tempfile].read)
+        @content = params[:file][:tempfile].read
       elsif params['content'] && params['content'] != ""
-        export(params['content'])
+        @content = params['content']
       elsif env['CONTENT_TYPE'] == 'application/erbwiz'
-        export(request.body.read)
+        @content = request.body.read
       else
         raise "content not found"
       end
+      erb :index
     rescue => error
       content_type :html
       puts error

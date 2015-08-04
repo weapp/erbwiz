@@ -304,11 +304,11 @@ erjs = (function() {
           s3 = [];
           s4 = peg$parseconfig();
           if (s4 === peg$FAILED) {
-            s4 = peg$parserelation();
+            s4 = peg$parsesame();
             if (s4 === peg$FAILED) {
-              s4 = peg$parsetable();
+              s4 = peg$parserelation();
               if (s4 === peg$FAILED) {
-                s4 = peg$parsesame();
+                s4 = peg$parsetable();
               }
             }
           }
@@ -316,11 +316,11 @@ erjs = (function() {
             s3.push(s4);
             s4 = peg$parseconfig();
             if (s4 === peg$FAILED) {
-              s4 = peg$parserelation();
+              s4 = peg$parsesame();
               if (s4 === peg$FAILED) {
-                s4 = peg$parsetable();
+                s4 = peg$parserelation();
                 if (s4 === peg$FAILED) {
-                  s4 = peg$parsesame();
+                  s4 = peg$parsetable();
                 }
               }
             }

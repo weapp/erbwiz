@@ -54,7 +54,7 @@
 
 start = instructions
 
-instructions = nl? s data:(config / relation / table / same)* { return compress(data) }
+instructions = nl? s data:(config / same / relation / table )* { return compress(data) }
 
 config = config:dict nl? { return {type: "CONFIG", value:config} }
        / config:pairs nl? { return {type: "CONFIG", value:config} }
