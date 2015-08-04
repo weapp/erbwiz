@@ -47,6 +47,9 @@ center = (str, width, padding) ->
   else
     str
 
+pop = (obj, key) ->
+  tap obj[key], -> delete obj[key]
+
 color = (tree, key) -> tree.config.color[key]
 
 tail = (tree, key) -> tree.config.tail[key]
@@ -186,18 +189,16 @@ deepMerge = (objs...) ->
 makeNodes = (tree) ->
   tap tree, ->
     nodes = []
-    for key, table of tree['TABLE']
-      options = tree.TABLE[key].header.options
-      fields = tree.TABLE[key].fields
-      c = color(tree, options.color)
+    for key, table of tree.TABLE
+      options = table.header.options
+      fields = table.fields
       nodes.push
         label: key,
         index: table.index,
         attributes: makeAttributes(
           defaultRecord(key, fields, options),
-          color(tree, options.color)
-          table.header.options),
-        table_Ss: tree.TABLE[key]
+          color(tree, pop(options, 'color'))
+          options)
 
     tree['templateVars']['nodes'] = nodes
 
