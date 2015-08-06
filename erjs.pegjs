@@ -110,7 +110,9 @@ dict_value = string_value
 
 string_value = $(["] [^"]* ["]) / $(['] [^']* ['])
 
-numeric_value = $([0-9]*.)?[0-9]+
+//numeric_value = $([0-9]*.)?[0-9]+
+numeric_value = $([0-9]+[.]?[0-9]*)
+
 
 //label = [\[] ident:$(identifier/[<>❝❞: ;|+()!]/label)+ dict? [\]] { return ident }
 //      / [\(] ident:$(identifier/[<>❝❞: ;|+()!]/label)+ dict? [\)] { return ident }

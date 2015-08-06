@@ -44,6 +44,10 @@
           <input type=hidden id=key name=key value="<%= params[:key] %>">
           <div class="form-group">
             <textarea id="content" name="content" rows="1" class="form-control mono"><%= @content || params[:content] || default_content %></textarea>
+            <div style="float:right;padding:1em 0">
+              <input type="button" onclick="download();" value="download" class="btn btn-primary"><br>
+            </div>
+            <div id="last-watched"></div>
           </div>
       </div>
       <div class="col-md-4">
@@ -75,6 +79,7 @@
 
 
       <script id="graph-template" type="x-tmpl-ejs"><%= open('./views/graph.ejs'){ |f| f.read } %></script>
+
     </div>
   </body>
 </html>

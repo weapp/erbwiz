@@ -37,14 +37,11 @@ $ = (selector, container) ->
 document_id = ->
   $('#key').value
 
-
 isSaved = ->
-  store.get('#saved_' + document_id()) == 'true'
-  # $('#content_saved').value == 'true'
+  store.get("erbwiz:v1:#{document_id()}:saved") == 'true'
 
 setSaved = (value) ->
-  store.set('#saved_' + document_id(), '' + value)
-  # $('#content_saved').value = '' + value
+  store.set("erbwiz:v1:#{document_id()}:saved", '' + value)
 
 setLabelSaved = (value) ->
   if value == 'transfer'
@@ -54,9 +51,9 @@ setLabelSaved = (value) ->
   else if value == 'error'
     $('#saved').innerHTML = '<i class="glyphicon glyphicon-floppy-remove red"></i>'
 
-
 refresher = (textarea, graph, tmpl) ->
   (saved)->
+    lastWatched()
     try
       dot = er2dot(textarea.value, tmpl)
       # console.log(dot[1])
@@ -70,7 +67,7 @@ refresher = (textarea, graph, tmpl) ->
 autoSave = (textarea) ->
   ->
     if !isSaved()
-      store.set '#content_' + document_id(), textarea.value
+      store.set "erbwiz:v1:#{document_id()}:content", textarea.value
 
       payload = ->
         id: document_id()
@@ -87,8 +84,29 @@ autoSave = (textarea) ->
 
       setSaved true
 
+@download = ->
+  graph = $('#graph')
 
-@download = (svg)->
+  canvas = document.createElement('canvas')
+  canvas.width  = graph.offsetWidth
+  canvas.height = graph.clientHeight
+
+  img = new Image
+  img.src = 'data:image/svg+xml,' + graph.innerHTML
+
+  img.onload = ->
+    canvas.getContext('2d').drawImage img, 0, 0
+    a = document.createElement('a')
+    a.download = "#{document_id()}.png"
+    a.href = canvas.toDataURL('image/png')
+    a.click()
+    return
+
+  return
+
+
+@downloadud = ->
+  svg = $("svg")
   canvas = document.createElement('canvas')
   context = canvas.getContext('2d')
 
@@ -96,23 +114,38 @@ autoSave = (textarea) ->
   canvas.setAttribute("height", svg.clientHeight);
 
   img = new Image
-  img.src = 'data:image/svg+xml,' + svg_data
+  img.src = 'data:image/svg+xml,' + svg.innerHTML
+  console.log(img)
   img.onload = ->
+    console.log("................")
     context.drawImage img, 0, 0
     a = document.createElement('a')
-    # a.download = 'fallback.png'
+    a.download = 'fallback.png'
     a.href = canvas.toDataURL('image/png')
     a.click()
   return
 
+lastWatched = ->
+  selector = (prev, current) ->
+    if current.startsWith('erbwiz:') and current.endsWith(':saved')
+      page = current.split(":")[2]
+      if page != ""
+        prev += "<li><a href=\"/#{page}\">#{page}</a></li>"
+    prev
+
+  keys = Object.keys(store.getAll()).reduce(selector, "")
+
+
+  $('#last-watched').innerHTML = "<ul>#{keys}</ul>"
 
 document.addEventListener 'DOMContentLoaded', ->
+  lastWatched()
   setLabelSaved('saved')
   textarea = $('#content')
   graph = $('#graph')
   template = $('#graph-template').innerHTML
   refresh = debounce(refresher(textarea, graph, template), 500)
-  content = store.get('#content_' + document_id())
+  content = store.get("erbwiz:v1:#{document_id()}:content")
   if content
     textarea.value = content
   refresh(true)
